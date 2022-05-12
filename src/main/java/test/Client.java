@@ -15,7 +15,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 
-public class TestApplication {
+public class Client {
 
    /**
     * This is the Java main method, which gets executed
@@ -55,6 +55,7 @@ public class TestApplication {
          .setFamily("FamilyName")
          .addGiven("GivenName1")
          .addGiven("GivenName2");
+
       // See also patient.setGender or setBirthDateElement
 
       // Create the resource patient on the server
@@ -68,17 +69,15 @@ public class TestApplication {
       System.out.println("Created patient, got ID: " + id);
       System.out.println("");
 
-      // Get only the id from the outcome
-      String idString = id.getIdPart();
       
       //----------------------------------------------------------------------------------------------------------
       // Part 3
 
       // Search for a single patient with the exact family name "FamilyName" and the exact given name "GivenName1"
-         patient = (Patient) client.search()
+      patient = (Patient) client.search()
          .forResource(Patient.class)
-         .where(Patient.FAMILY.matchesExactly().value("FamilyName"))
-         .and(Patient.GIVEN.matchesExactly().value("GivenName1"))
+         .where(Patient.FAMILY.matchesExactly().value("FamilyNameTest"))
+         .and(Patient.GIVEN.matchesExactly().value("GivenName1Test"))
          .returnBundle(Bundle.class)
          .execute()
          .getEntryFirstRep()
@@ -91,7 +90,7 @@ public class TestApplication {
          .setValue("555-555-5555");
 
       // Change the patient given name to another
-      patient.getName().get(0).getGiven().set(0,  new StringType("AnotherGivenName"));
+      patient.getName().get(0).getGiven().set(0,  new StringType("AnotherGivenNameTest"));
 
       // Update the resource patient on the server
       MethodOutcome outcome2 = client.update()

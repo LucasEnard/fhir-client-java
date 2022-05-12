@@ -76,8 +76,8 @@ public class Client {
       // Search for a single patient with the exact family name "FamilyName" and the exact given name "GivenName1"
       patient = (Patient) client.search()
          .forResource(Patient.class)
-         .where(Patient.FAMILY.matchesExactly().value("FamilyNameTest"))
-         .and(Patient.GIVEN.matchesExactly().value("GivenName1Test"))
+         .where(Patient.FAMILY.matchesExactly().value("FamilyName"))
+         .and(Patient.GIVEN.matchesExactly().value("GivenName1"))
          .returnBundle(Bundle.class)
          .execute()
          .getEntryFirstRep()
@@ -90,7 +90,7 @@ public class Client {
          .setValue("555-555-5555");
 
       // Change the patient given name to another
-      patient.getName().get(0).getGiven().set(0,  new StringType("AnotherGivenNameTest"));
+      patient.getName().get(0).getGiven().set(0,  new StringType("AnotherGivenName"));
 
       // Update the resource patient on the server
       MethodOutcome outcome2 = client.update()

@@ -2,11 +2,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>furore.github.io</groupId>
-	<artifactId>hapi-fhirstarters-client-skeleton</artifactId>
+	<artifactId>fhir-client-java</artifactId>
 	<version>5.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>HAPI FHIR Skeleton Project (Client)</name>
+	<name>fhir-client-java</name>
 
    <properties>
       <hapifhir_version>5.6.0</hapifhir_version>

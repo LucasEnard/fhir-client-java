@@ -29,7 +29,7 @@ public class Client {
       FhirContext ctx = FhirContext.forR4();
 
       // create an header containing the api key for the httpClient
-      Header header = new BasicHeader("x-api-key", "sVgCTspDTM4iHGn51K5JsaXAwJNmHkSG3ehxindk");
+      Header header = new BasicHeader("x-api-key", "api-key");
       ArrayList<Header> headers = new ArrayList<Header>();
       headers.add(header);
 
@@ -44,7 +44,7 @@ public class Client {
       ctx.getRestfulClientFactory().setHttpClient(httpClient);
 
       // Create a client
-      IGenericClient client = ctx.newRestfulGenericClient("https://fhir.8ty581k3dgzj.static-test-account.isccloud.io");
+      IGenericClient client = ctx.newRestfulGenericClient("url");
 
       //----------------------------------------------------------------------------------------------------------
       // Part 2

@@ -25,6 +25,7 @@ Note that for the most part auto-completion is activated.
 # 2. Prerequisites
 Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Docker desktop](https://www.docker.com/products/docker-desktop) installed.
 
+Already installed in the container :<br>
 [Hapi Fhir model and client](https://hapifhir.io/hapi-fhir/docs/getting_started/introduction.html)
 
 
@@ -55,6 +56,8 @@ You can be *inside* the container before coding.<br>
 For this, docker must be on before opening VSCode.<br>
 Then, inside VSCode, when prompted (in the right bottom corner), reopen the folder inside the container so you will be able to use the python components within it.<br>
 The first time you do this it may take several minutes while the container is readied.
+
+If you don't have this option, you can click in the bottom left corner and `press reopen in container` then select `From Dockerfile`
 
 [More information here](https://code.visualstudio.com/docs/remote/containers)
 

@@ -52,7 +52,7 @@ Open the locally-cloned `fhir-client-java` folder in VS Code.
 If prompted (bottom right corner), install the recommended extensions.
 
 ## 3.3. Having the folder open inside the container
-You can be *inside* the container before coding.<br>
+You can be *inside* the container before coding if you wish.<br>
 For this, docker must be on before opening VSCode.<br>
 Then, inside VSCode, when prompted (in the right bottom corner), reopen the folder inside the container so you will be able to use the python components within it.<br>
 The first time you do this it may take several minutes while the container is readied.
@@ -85,12 +85,42 @@ The code is separated in multiple parts, and we will cover each of them below.
 ## 5.1. Part 1
 In this part we connect our client to our server using Fhir.Rest.
 
+```java
+
+// Part 1
+
+      // Create a context usign FHIR R4
+      FhirContext ctx = FhirContext.forR4();
+
+      // create an header containing the api key for the httpClient
+      Header header = new BasicHeader("x-api-key", "api-key");
+      ArrayList<Header> headers = new ArrayList<Header>();
+      headers.add(header);
+
+      // create an httpClient builder and add the header to it
+      HttpClientBuilder builder = HttpClientBuilder.create();
+      builder.setDefaultHeaders(headers);
+
+      // create an httpClient using the builder
+      CloseableHttpClient httpClient = builder.build();
+
+      // Set the httpClient to the context using the factory
+      ctx.getRestfulClientFactory().setHttpClient(httpClient);
+
+      // Create a client
+      IGenericClient client = ctx.newRestfulGenericClient("url");
+
+```
+
 In order to connect to your server you need to change the line :
-```c#
+
+```java
 Header header = new BasicHeader("x-api-key", "api-key");
 ```
+
 And this line :
-```c#
+
+```java
 IGenericClient client = ctx.newRestfulGenericClient("url");
 ```
 
@@ -103,6 +133,31 @@ Just like that, we have a FHIR client capable of direct exchange with our server
 ## 5.2. Part 2
 In this part we create a Patient using Fhir.Model and we fill it with a HumanName, following the FHIR convention, `use` and `family` are string and `given` is a list of string. The same way, a Patient can have multiple HumanNames so we have to put our HumanName in a list before puting it into our newly created Patient.
 
+```java
+
+// Part 2
+
+      // Create a patient and add a name to it
+      Patient patient = new Patient();
+      patient.addName()
+         .setFamily("FamilyName")
+         .addGiven("GivenName1")
+         .addGiven("GivenName2");
+
+      // See also patient.setGender or setBirthDateElement
+
+      // Create the resource patient on the server
+		MethodOutcome outcome = client.create()
+         .resource(patient)
+         .execute();
+
+      // Log the ID that the server assigned
+      IIdType id = outcome.getId();
+      System.out.println("");
+      System.out.println("Created patient, got ID: " + id);
+      System.out.println("");
+```
+
 After that, we need to save our new Patient in our server using our client.
 
 Note that if you start `Client.java` multiple times, multiple Patients having the name we choosed will be created.<br> This is because, following the FHIR convention you can have multiple Patient with the same name, only the `id` is unique on the server.<br>
@@ -112,6 +167,34 @@ Therefore we advise to comment the line after the first launch.
 ## 5.3. Part 3
 In this part we get a client searching for a Patient named after the one we created earlier.
 
+```java
+// Part 3
+
+      // Search for a single patient with the exact family name "FamilyName" and the exact given name "GivenName1"
+      patient = (Patient) client.search()
+         .forResource(Patient.class)
+         .where(Patient.FAMILY.matchesExactly().value("FamilyName"))
+         .and(Patient.GIVEN.matchesExactly().value("GivenName1"))
+         .returnBundle(Bundle.class)
+         .execute()
+         .getEntryFirstRep()
+         .getResource();
+
+      // Create a telecom for patient
+      patient.addTelecom()
+         .setSystem(ContactPointSystem.PHONE)
+         .setUse(ContactPointUse.HOME)
+         .setValue("555-555-5555");
+
+      // Change the patient given name to another
+      patient.getName().get(0).getGiven().set(0,  new StringType("AnotherGivenName"));
+
+      // Update the resource patient on the server
+      MethodOutcome outcome2 = client.update()
+         .resource(patient)
+         .execute();
+```
+
 Once we found him, we add a phone number to his profile and we change his given name to another.
 
 Now we can use the update function of our client to update our patient in the server.
@@ -119,6 +202,55 @@ Now we can use the update function of our client to update our patient in the se
 ## 5.4. Part 4
 In this part we want to create an observation for our Patient from earlier, to do this we need his id, which is his unique identifier.<br>
 From here we fill our observation and add as the subject, the id of our Patient.
+
+```java
+// Part 4
+
+      // Create a CodeableConcept and fill it
+      CodeableConcept codeableConcept = new CodeableConcept();
+      codeableConcept.addCoding()
+         .setSystem("http://snomed.info/sct")
+         .setCode("1234")
+         .setDisplay("CodeableConceptDisplay");
+
+      // Create a Quantity and fill it
+      Quantity quantity = new Quantity();
+      quantity.setValue(1.0);
+      quantity.setUnit("kg");
+
+      // Create a Category and fill it
+      CodeableConcept category = new CodeableConcept();
+      category.addCoding()
+         .setSystem("http://snomed.info/sct")
+         .setCode("1234")
+         .setDisplay("CategoryDisplay");
+
+      // Create a list of CodeableConcepts and put category into it
+      ArrayList<CodeableConcept> codeableConcepts = new ArrayList<CodeableConcept>();
+      codeableConcepts.add(category);
+
+      // Create an Observation
+      Observation observation = new Observation();
+      observation.setStatus(Observation.ObservationStatus.FINAL);
+      observation.setCode(codeableConcept);
+      observation.setSubject(new Reference().setReference("Patient/" + ((IIdType) outcome2.getId()).getIdPart()));
+      observation.setCategory(codeableConcepts);
+      observation.setValue(quantity);
+      
+      System.out.println("");
+      System.out.println("Created observation, reference : " + observation.getSubject().getReference());
+      System.out.println("");
+
+       // Create the resource observation on the server
+      MethodOutcome outcome3 = client.create()
+         .resource(observation)
+         .execute();
+
+      // Print the response of the server
+      System.out.println("");
+      System.out.println("Created observation, got ID: " + outcome3.getId());
+      System.out.println("");
+```
 
 Then, we register using the create function our observation.
 

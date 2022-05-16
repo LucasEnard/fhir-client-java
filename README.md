@@ -35,13 +35,13 @@ Already installed in the container :<br>
 
 Clone/git pull the repo into any local directory e.g. like it is shown below:
 ```
-$ git clone https://github.com/LucasEnard/fhir-client-java.git
+git clone https://github.com/LucasEnard/fhir-client-java.git
 ```
 
 Open the terminal in this directory and run:
 
 ```
-$ docker build .
+docker build .
 ```
 ## 3.2. Management Portal and VSCode
 
@@ -256,7 +256,7 @@ Then, we register using the create function our observation.
 
 ## 5.5. Conclusion of the walkthrough
 
-If you have followed this walkthrough you now know exactly what Client.cs does, you can start it and check in your server your newly created Patient and Observation.
+If you have followed this walkthrough you now know exactly what Client.java does, you can start it and check in your server your newly created Patient and Observation.
 
 To start it, open a VSCode terminal and enter :
 ```
